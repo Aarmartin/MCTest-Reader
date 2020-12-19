@@ -28,6 +28,7 @@
 import sys
 import math
 import re
+import nltk
 
 # Story class
 # Contains all information from individual line of test file
@@ -89,8 +90,33 @@ class Story:
 		print("Dict and counts: ", self.counts)
 		print("Question Bank: ", self.qBank)
 
+# POS Tagging and question type checking
+def checkPOSandQType(currentScore, q, a):
 
-def calculateScore(story, qAndA):
+	aTokens = nltk.word_tokenize(a[0])
+	tag = nltk.pos_tag(aTokens)[0][1]
+
+	if "Who" in q:
+
+		if tag == "NNP" or tag == "NNPS":
+			currentScore += currentScore/2
+
+	if "When" in q:
+
+		if tag == "CD":
+			currentScore += currentScore
+
+	if "What" in q:
+
+		if tag == "NN" or tag == "NNP" or tag == "NNPS":
+			currentScore += currentScore/2
+
+
+	return currentScore
+		
+
+
+def calculateScore(story, qAndA, mode, q, a):
 
 	#Split story to list
 	content = story.text.split()
@@ -124,6 +150,9 @@ def calculateScore(story, qAndA):
 		if score > maxScore:
 			maxScore = score
 
+	if mode == 1:
+		maxScore = checkPOSandQType(maxScore, q, a)
+
 	return maxScore
 
 # Method for returning answer value based on answer with highest score
@@ -150,7 +179,7 @@ def maxOptions(scores):
 	# If not found, default to A
 	return 'A'
 
-def answer(story):
+def answer(story, mode):
 
 	# Traverse the questions in the story
 	for i, key in zip(range(4), story.qBank.keys()):
@@ -172,7 +201,7 @@ def answer(story):
 			# [qword1, qword2, qword3, aword1, aword2 ]
 			qAndA = q + a
 			# Calculate that answer's score, and place on scorecard array
-			scores[j] = calculateScore(story, qAndA)
+			scores[j] = calculateScore(story, qAndA, mode, q, a)
 
 		# Choose max score option
 		# Print result
@@ -204,6 +233,6 @@ def main(argv):
 
 	# Answer questions from each story
 	for story in data:
-		answer(story)
+		answer(story, int(mode))
 
 main(sys.argv)

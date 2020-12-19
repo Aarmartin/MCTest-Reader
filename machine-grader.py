@@ -15,12 +15,19 @@
 # Correct: 5
 # Accuracy: .625
 #
-#	1. 
+#	1. Read in answered and correct files
+#	2. Parse each line (question)
+#		a. Parse each answer
+#			i. If answer is correct, add to total correct, else, add to total incorrect and incorrect for that question
+#		b. Print question results
+#	3. Calculate total correct and print
+#	4. Calculate accuracy and print
 
 import sys
 
 def main(argv):
 
+	# Read in and open files
 	f1name = argv[1]
 	f2name = argv[2]
 
@@ -30,19 +37,27 @@ def main(argv):
 	correct = 0
 	incorrect = 0
 
+	# For each line (question) in both files
 	for ans, gold in zip(f1.readlines(), f2.readlines()):
+
+		# Remove newline character
 		ans = ans[:-1]
 		gold = gold[:-1]
 
+		# Split by individual answers
 		anss = ans.split("\t")
 		golds = gold.split("\t")
 
 		incor = 0
 
+		# For each answer
 		for let, glet in zip(anss, golds):
 
+			# If answered is the same as correct
 			if(let == glet):
 				correct += 1
+
+			# If answer was incorrect
 			else:
 				incor += 1
 				incorrect += 1
@@ -51,6 +66,7 @@ def main(argv):
 		print(gold, end="\t|\t")
 		print(incor)
 
+	# Print total correct and calculated accuracy
 	print("Num correct: ", correct)
 	print("Accuracy: ", correct/(correct+incorrect))
 
